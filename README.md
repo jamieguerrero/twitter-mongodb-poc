@@ -1,6 +1,6 @@
 ## Getting Started
 
-To run this app, you must have an .env file with the following keys:
+To run this script, you must have an .env file with the following keys:
 - CONSUMER_KEY
 - CONSUMER_SECRET
 - OAUTH_TOKEN
