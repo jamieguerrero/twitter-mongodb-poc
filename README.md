@@ -11,19 +11,18 @@ You will also need python (pyenv) and mongodb running.
 - install pyenv
 - install python (v3.9.2 at the time of development)
 
-create virtualenv
-`python -m venv .venv`
+- create virtualenv `python -m venv .venv`
 
-start venv 
+- start venv
 Windows: `.venv\Scripts\activate.bat`
 Mac: `source .venv/bin/activate`
 
-
-pip install requirements
+- pip install requirements
 `pip install -r requirements.txt`
 
-startmongodb
-i have these aliases in my `~/.zshrc` (or `~/.bashrc`) file
+- start mongo
+i have these aliases in my `~/.zshrc` (or `~/.bashrc`) file 
+
 ```
 alias startmongo='brew services start mongodb-community'
 alias stopmongo='brew services stop mongodb-community'
