@@ -54,61 +54,79 @@ def twitter_search(twitter_api, q, max_results=200, **kw):
 
     return statuses
 
-
-def save_to_mongo(data, mongo_db, mongo_db_coll, **mongo_conn_kw):
-
-    # Connects to the MongoDB server running on
-    # localhost:27017 by default
-
-    client = pymongo.MongoClient(**mongo_conn_kw)
-
-    # Get a reference to a particular database
-
-    db = client[mongo_db]
-
-    # Reference a particular collection in the database
-
-    coll = db[mongo_db_coll]
-
-    # Perform a bulk insert and  return the IDs
-    try:
-        return coll.insert_many(data)
-    except:
-        return coll.insert_one(data)
+def save_json(filename, data):
+    with open('data/{0}.json'.format(filename),
+              'w', encoding='utf-8') as f:
+        json.dump(data, f, ensure_ascii=False)
 
 
-def load_from_mongo(mongo_db, mongo_db_coll, return_cursor=False,
-                    criteria=None, projection=None, **mongo_conn_kw):
+def load_json(filename):
+    with open('data/{0}.json'.format(filename), 
+              'r', encoding='utf-8') as f:
+        return json.load(f)
 
-    # Optionally, use criteria and projection to limit the data that is
-    # returned as documented in
-    # http://docs.mongodb.org/manual/reference/method/db.collection.find/
 
-    # Consider leveraging MongoDB's aggregations framework for more
-    # sophisticated queries.
+# def save_to_mongo(data, mongo_db, mongo_db_coll, **mongo_conn_kw):
 
-    client = pymongo.MongoClient(**mongo_conn_kw)
-    db = client[mongo_db]
-    coll = db[mongo_db_coll]
+#     # Connects to the MongoDB server running on
+#     # localhost:27017 by default
 
-    if criteria is None:
-        criteria = {}
+#     client = pymongo.MongoClient(**mongo_conn_kw)
 
-    if projection is None:
-        cursor = coll.find(criteria)
-    else:
-        cursor = coll.find(criteria, projection)
+#     # Get a reference to a particular database
 
-    # Returning a cursor is recommended for large amounts of data
+#     db = client[mongo_db]
 
-    if return_cursor:
-        return cursor
-    else:
-        return [item for item in cursor]
+#     # Reference a particular collection in the database
+
+#     coll = db[mongo_db_coll]
+
+#     # Perform a bulk insert and  return the IDs
+#     try:
+#         return coll.insert_many(data)
+#     except:
+#         return coll.insert_one(data)
+
+
+# def load_from_mongo(mongo_db, mongo_db_coll, return_cursor=False,
+#                     criteria=None, projection=None, **mongo_conn_kw):
+
+#     # Optionally, use criteria and projection to limit the data that is
+#     # returned as documented in
+#     # http://docs.mongodb.org/manual/reference/method/db.collection.find/
+
+#     # Consider leveraging MongoDB's aggregations framework for more
+#     # sophisticated queries.
+
+#     client = pymongo.MongoClient(**mongo_conn_kw)
+#     db = client[mongo_db]
+#     coll = db[mongo_db_coll]
+
+#     if criteria is None:
+#         criteria = {}
+
+#     if projection is None:
+#         cursor = coll.find(criteria)
+#     else:
+#         cursor = coll.find(criteria, projection)
+
+#     # Returning a cursor is recommended for large amounts of data
+
+#     if return_cursor:
+#         return cursor
+#     else:
+#         return [item for item in cursor]
 
 twitter_api = oauth_login()
 results = twitter_search(twitter_api, q, max_results=10)
 
-ids = save_to_mongo(results, 'search_results', q, host=host)
+print (results)
 
-load_from_mongo('search_results', q, host=host)
+save_json(q, results)
+results = load_json(q)
+
+print(json.dumps(results, indent=1, ensure_ascii=False))
+
+# ids = save_to_mongo(results, 'search_results', q, host=host)
+
+# load_from_mongo('search_results', q, host=host)
