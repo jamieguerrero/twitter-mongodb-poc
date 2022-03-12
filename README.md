@@ -15,20 +15,10 @@ You will also need python (pyenv) and mongodb running.
 
 - start venv
 Windows: `.venv\Scripts\activate.bat`
-Mac: `source .venv/bin/activate`
+Mac/Linux: `source .venv/bin/activate`
 
 - pip install requirements
 `pip install -r requirements.txt`
 
-- start mongo
-i have these aliases in my `~/.zshrc` (or `~/.bashrc`) file 
-
-```
-alias startmongo='brew services start mongodb-community'
-alias stopmongo='brew services stop mongodb-community'
-alias startmongobg='mongod --config /usr/local/etc/mongod.conf'
-alias stopmongobd='mongo admin --eval "db.shutdownServer()"'
-```
-
-- open mongodb compass
+- create a folder called `data` in the root directory
 - run script with `python script.py`
