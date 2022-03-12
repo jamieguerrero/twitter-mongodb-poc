@@ -1,7 +1,7 @@
 import os
 import twitter
 import json
-import pymongo 
+import pymongo
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -11,19 +11,23 @@ OAUTH_TOKEN_SECRET = os.environ.get("OAUTH_TOKEN_SECRET")
 CONSUMER_KEY = os.environ.get("CONSUMER_KEY")
 CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET")
 
-host = 'mongodb://localhost:27017'
-q = 'Joe Rogan'
+host = "mongodb://localhost:27017"
+q = "Joe Rogan"
+
 
 def oauth_login():
-    auth = twitter.oauth.OAuth(OAUTH_TOKEN, OAUTH_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET)
+    auth = twitter.oauth.OAuth(
+        OAUTH_TOKEN, OAUTH_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET
+    )
 
     twitter_api = twitter.Twitter(auth=auth)
     return twitter_api
 
+
 def twitter_search(twitter_api, q, max_results=200, **kw):
     search_results = twitter_api.search.tweets(q=q, count=100, **kw)
 
-    statuses = search_results['statuses']
+    statuses = search_results["statuses"]
 
     # Iterate through batches of results by following the cursor until we
     # reach the desired number of results, keeping in mind that OAuth users
@@ -37,32 +41,30 @@ def twitter_search(twitter_api, q, max_results=200, **kw):
 
     for _ in range(10):  # 10*100 = 1000
         try:
-            next_results = search_results['search_metadata']['next_results']
+            next_results = search_results["search_metadata"]["next_results"]
         except KeyError as e:  # No more results when next_results doesn't exist
             break
 
         # Create a dictionary from next_results, which has the following form:
         # ?max_id=313519052523986943&q=NCAA&include_entities=1
-        kwargs = dict([kv.split('=')
-                       for kv in next_results[1:].split("&")])
+        kwargs = dict([kv.split("=") for kv in next_results[1:].split("&")])
 
         search_results = twitter_api.search.tweets(**kwargs)
-        statuses += search_results['statuses']
+        statuses += search_results["statuses"]
 
         if len(statuses) > max_results:
             break
 
     return statuses
 
+
 def save_json(filename, data):
-    with open('data/{0}.json'.format(filename),
-              'w', encoding='utf-8') as f:
+    with open("data/{0}.json".format(filename), "w", encoding="utf-8") as f:
         json.dump(data, f, ensure_ascii=False)
 
 
 def load_json(filename):
-    with open('data/{0}.json'.format(filename), 
-              'r', encoding='utf-8') as f:
+    with open("data/{0}.json".format(filename), "r", encoding="utf-8") as f:
         return json.load(f)
 
 
@@ -120,12 +122,29 @@ def load_json(filename):
 twitter_api = oauth_login()
 results = twitter_search(twitter_api, q, max_results=10)
 
-print (results)
 
+def twitter_trends(twitter_api, woe_id):
+    # Prefix ID with the underscore for query string parameterization.
+    # Without the underscore, the twitter package appends the ID value
+    # to the URL itself as a special-case keyword argument.
+    return twitter_api.trends.place(_id=woe_id)
+
+
+WORLD_WOE_ID = 1
+world_trends = twitter_trends(twitter_api, WORLD_WOE_ID)
+# print(json.dumps(world_trends, indent=1))
+
+US_WOE_ID = 23424977
+us_trends = twitter_trends(twitter_api, US_WOE_ID)
+# print(json.dumps(us_trends, indent=1))
+
+
+save_json("WORLD_TRENDS", world_trends)
+save_json("US_TRENDS", us_trends)
 save_json(q, results)
 results = load_json(q)
 
-print(json.dumps(results, indent=1, ensure_ascii=False))
+# print(json.dumps(results, indent=1, ensure_ascii=False))
 
 # ids = save_to_mongo(results, 'search_results', q, host=host)
 
