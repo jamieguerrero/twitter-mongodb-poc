@@ -112,7 +112,7 @@ zipped_result = []
 for i, t in enumerate(tweets):
     # Extract the relevant portion of the tweet
     user = t["user"],
-    retweetuser = t['lang'],
+    retweetuser = t["retweeted_status"]["user"]["screen_name"],
     
     
     zipped_result.append(
@@ -126,12 +126,12 @@ final = json.dumps(zipped_result)
 df1 = pd.read_json(final)
 csv_file = df1.to_csv(f"data/test2.csv", index=None)
 
-test = nx.from_pandas_edgelist(
-    zipped_result,
-    source = user,
-    target = retweetuser,
-    create_using = nx.DiGraph()
-) 
+# test = nx.from_pandas_edgelist(
+#     zipped_result,
+#     source = user,
+#     target = retweetuser,
+#     create_using = nx.DiGraph()
+# ) 
 
 
 
