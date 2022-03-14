@@ -111,7 +111,7 @@ for tweet in results:
 zipped_result = []
 for i, t in enumerate(tweets):
     # Extract the relevant portion of the tweet
-    user = t["user"],
+    user = t["user"]["screen_name"],
     retweetuser = t["retweeted_status"]["user"]["screen_name"],
     
     
