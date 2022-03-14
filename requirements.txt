@@ -1,3 +1,5 @@
 twitter
 pymongo
 python-dotenv
+pandas
+nltk
