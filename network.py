@@ -111,27 +111,34 @@ for tweet in results:
 zipped_result = []
 for i, t in enumerate(tweets):
     # Extract the relevant portion of the tweet
-    user = t["user"]["screen_name"],
-    retweetuser = t["retweeted_status"]["user"]["screen_name"],
-    
-    
-    zipped_result.append(
+    user = t["user"]["screen_name"]
+    try:
+        if 'retweeted_status' in t:
+            retweetuser = t["retweeted_status"]["user"]["screen_name"],
+            zipped_result.append(
     {
         "user": user,
         "retweetuser": retweetuser
     }
     )
+    except:
+        pass
+
 
 final = json.dumps(zipped_result)
 df1 = pd.read_json(final)
 csv_file = df1.to_csv(f"data/test2.csv", index=None)
 
-# test = nx.from_pandas_edgelist(
-#     zipped_result,
-#     source = user,
-#     target = retweetuser,
-#     create_using = nx.DiGraph()
-# ) 
+network = pd.DataFrame(zipped_result)
+
+print(network)
+
+test = nx.from_pandas_edgelist(
+    network,
+    source = user,
+    target = retweetuser,
+    create_using = nx.DiGraph()
+) 
 
 
 
