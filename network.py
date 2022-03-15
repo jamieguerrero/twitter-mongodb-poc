@@ -1,28 +1,21 @@
 from dotenv import load_dotenv
 import os
 import json
-import sys
-import time
 import networkx as nx
-from IPython.display import display
 import twitter
 import pandas as pd
 from urllib.error import URLError
 from http.client import BadStatusLine
-import nltk
-import numpy as np
-from nltk.sentiment.vader import SentimentIntensityAnalyzer
 import matplotlib.pyplot as plt 
 
 load_dotenv()
+
+#Auth stuff 
 
 OAUTH_TOKEN = os.environ.get("OAUTH_TOKEN")
 OAUTH_TOKEN_SECRET = os.environ.get("OAUTH_TOKEN_SECRET")
 CONSUMER_KEY = os.environ.get("CONSUMER_KEY")
 CONSUMER_SECRET = os.environ.get("CONSUMER_SECRET")
-
-TWEETS_TO_ANALYZE = 100
-SCREEN_NAME = "joerogan"
 
 auth = twitter.oauth.OAuth(
     OAUTH_TOKEN, OAUTH_TOKEN_SECRET, CONSUMER_KEY, CONSUMER_SECRET
@@ -30,24 +23,9 @@ auth = twitter.oauth.OAuth(
 
 twitter_api = twitter.Twitter(auth=auth)
 
-def save_to_pandas(data, fname):
-    df = pd.DataFrame.from_records(data)
-    df.to_pickle(fname)
-    return df
-    
+### Twitter Search Function that searches for tweets 
+def twitter_search(twitter_api, q, max_results=200, **kw): 
 
-def load_from_mongo(fname):
-    df = pd.read_pickle(fname)
-    return df
-
-def twitter_search(twitter_api, q, max_results=200, **kw): ### Twitter Search Function that searches for tweets 
-
-    # See https://developer.twitter.com/en/docs/tweets/search/api-reference/get-search-tweets
-    # and https://developer.twitter.com/en/docs/tweets/search/guides/standard-operators
-    # for details on advanced search criteria that may be useful for 
-    # keyword arguments
-    
-    # See https://dev.twitter.com/docs/api/1.1/get/search/tweets    
     search_results = twitter_api.search.tweets(q=q, count=100, **kw)
     
     statuses = search_results['statuses']
@@ -84,32 +62,15 @@ def twitter_search(twitter_api, q, max_results=200, **kw): ### Twitter Search Fu
 ######################
     
 
-# Sample usage
+#Enter search here 
 
 q = 'yosakoi'
 
 results = twitter_search(twitter_api, q, max_results=10)
 
-df = save_to_pandas(results, 'search_results_{}.pkl'.format(q))
-
-
-
-tweets = []
-for tweet in results:
-    try:
-        if tweet["retweet_count"] > 1:
-            tweets.append(tweet)
-    except:
-        pass
-
-
-
-# with open('your_file.txt', 'w') as f:
-#     for item in tweets:
-#         f.write("%s\n" % tweets)
-
+#Flatten tweets
 zipped_result = []
-for i, t in enumerate(tweets):
+for i, t in enumerate(results):
     # Extract the relevant portion of the tweet
     user = t["user"]["screen_name"]
     try:
@@ -124,18 +85,9 @@ for i, t in enumerate(tweets):
     except:
         pass
 
+network = pd.DataFrame(zipped_result) #Create df 
 
-final = json.dumps(zipped_result)
-df1 = pd.read_json(final)
-csv_file = df1.to_csv(f"data/test2.csv", index=None)
-
-network = pd.DataFrame(zipped_result)
-
-# print(user)
-
-# network['retweetuser']=network['retweetuser'].str.replace('(','')
-# print(network)
-
+#Use nx to create the network using an edgelist with 2 columns
 test = nx.from_pandas_edgelist(
     network,
     source = 'user',
@@ -184,7 +136,6 @@ rt = pd.DataFrame(list(rt_centrality.items()), columns = column_names)
 # Print first five results in descending order of centrality
 print(rt.sort_values('betweenness_centrality', ascending = False).head())
 
-print(rt)
-csv_file = rt.to_csv(f"data/test2.csv", index=None)
+
 
 
