@@ -86,7 +86,7 @@ def twitter_search(twitter_api, q, max_results=200, **kw): ### Twitter Search Fu
 
 # Sample usage
 
-q = 'CrossFit'
+q = 'yosakoi'
 
 results = twitter_search(twitter_api, q, max_results=10)
 
@@ -153,7 +153,7 @@ sizes = [x[1] for x in test.degree()]
 
 # Draw the network
 nx.draw_networkx(test, pos, 
-    with_labels = False, 
+    with_labels = True, 
     node_size = sizes,
     width = 0.1, alpha = 0.7,
     arrowsize = 2, linewidths = 0)
@@ -161,60 +161,30 @@ nx.draw_networkx(test, pos,
 # Turn axis off and show
 plt.axis('off'); plt.show(); plt.savefig('hi.png')
 
+# Generate in-degree centrality for retweets 
+rt_centrality = nx.in_degree_centrality(test)
+
+column_names = ['screen_name', 'degree_centrality']
+
+# Store centralities in DataFrame
+rt = pd.DataFrame(list(rt_centrality.items()), columns = column_names)
+
+# Print first five results in descending order of centrality
+print(rt.sort_values('degree_centrality', ascending = False).head())
+
+###################
+
+# Generate betweenness centrality for retweets 
+rt_centrality = nx.betweenness_centrality(test)
+
+column_names = ['screen_name', 'betweenness_centrality']
+# Store centralities in data frames
+rt = pd.DataFrame(list(rt_centrality.items()), columns = column_names)
+
+# Print first five results in descending order of centrality
+print(rt.sort_values('betweenness_centrality', ascending = False).head())
+
+print(rt)
+csv_file = rt.to_csv(f"data/test2.csv", index=None)
 
 
-
-# Show some sample output, but just the user and text columns
-
-#display(df)
-#print('Nodes in RT network:', len(test.nodes()))
-#csv_file = df.to_csv(f"data/test.csv", index=None)
-
- # 
-# zipped_result = []
-# for i, t in enumerate(results):
-#     # Extract the text portion of the tweet
-#     user = t["user"]["screen_name"]
-#     retweetuser = t["retweeted_status"]["user"]["screen_name"]
-#     zipped_result.append(
-#     {
-#         "user": user,
-#         "retweetuser": retweetuser
-#     }
-#     )
-
-# results1 = json.dumps(results)
-
-# def flatten_tweets(results1):
-#     tweets_list = []
-#     for tweet in results1:
-#         tweet_obj = json.loads(tweet)
-#         # Store the user screen name in 'user-screen_name'
-#         tweet_obj["user"] = tweet_obj["user"]["screen_name"]
-    
-#         if 'retweeted_status' in tweet_obj:
-#          # Store the retweet user screen name in 'retweeted_status-user-screen_name'
-#                 tweet_obj["retweetuser"] = tweet_obj["retweeted_status"]["user"]["screen_name"] 
-#         tweets_list.append(tweet_obj)
-#     return tweets_list 
-
-# main = flatten_tweets(results1)
-
-# df3 = pd.DataFrame(main)
-
-
-
-
-    # if 'retweeted_status' in results:
-    #     retweetuser = t["retweeted_status"]["screen_name"]
-    #     zipped_result.append(
-    #     {
-    #         "user": user,
-    #         "retweet_user": retweetuser
-    #     }
-    #     )
-
-
-
-
-  
